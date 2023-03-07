@@ -7,3 +7,16 @@ customize_from_dictionaries.py
 historical_100_search.json
 *.db
 find_path.py
+customize_headers_with_offset_loop.py
+pandas.py
+main.py
+main-copy.py
+customize_from_list.py
+customize_headers.py
+customize_from_list_sql.py
+jobsearch_examples.py
+job_listings.json
+job_keys_print.json
+extracted_data.json
+extracted_data_loop.json
+create_sql_historical_WO_primary.py
