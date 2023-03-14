@@ -6,7 +6,9 @@ table_name = "historical_job_listings"
 
 # read in the list of desired fields from a file and clean up one line space and ordered columns
 with open("desired_fields_historical.txt", "r", encoding="utf-8") as f:
-  desired_fields = [line.strip() for line in f]
+  #desired_fields = [line.strip() for line in f]
+  #correct the non-SQLite compatible naming convention with a _ instead of .
+  desired_fields = [line.strip().replace(".", "_") for line in f]
 
 # read in the extracted job listings from a JSON file
 # OBS! Must change the years in json file so that it reads the correct data pull
@@ -55,7 +57,8 @@ else:
 
 # looping through the data in the json file
 for job in job_listings_extracted:
-    # added f"`{field}`" for field in desired_fields]
+    # Replace "." with "_" in field names to match updated db table names
+    job = {key.replace(".", "_"): value for key, value in job.items()}
     #chat GPT suggested the below to extract only the values from the listing and to convert any datatypes that are not str, bool, or int.
     values = [str(job.get(field, "")) if isinstance(job.get(field, ""), (str, bool)) else int(job.get(field)) if isinstance(job.get(field), int) else "" for field in job.keys() if field in desired_fields]
     # added the `` for field due to dot character in the field names in json data

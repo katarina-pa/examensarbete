@@ -15,10 +15,6 @@ with open("desired_fields_historical_2019-2020.txt", "r", encoding="utf-8") as f
 with open("job_listings_desired_2019-2020.json", "r", encoding="utf-8") as f:
   job_listings_extracted = json.load(f)
 
-# don't believe I need the below for insertion only so commented out
-# get the data types of the fields from the extracted job listing in json file to format db columns later
-#field_data_types = {field: type(job.get(field)) for job in job_listings_extracted for field in job if field in desired_fields}
-
 # connect to the database
 conn = sqlite3.connect('job_listings.db')
 c = conn.cursor()

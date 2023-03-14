@@ -14,37 +14,8 @@ with open("desired_fields.txt", "r") as f:
 job_listings_extracted = []
 missing_fields = {}
 
-'''
-
-# suggested function by chatGPT to reiterate and be able to go to 3rd nesting level to retrieve value-- this one works as is
-def get_value_by_nested_key(nested_dict, keys):
-    """
-    Traverses a nested dictionary and returns the value for a given set of keys.
-
-    Parameters:
-    - nested_dict (dict): The nested dictionary to traverse.
-    - keys (list): The keys to look up in the dictionary. Each key represents a level of nesting.
-
-    Returns:
-    - The value associated with the given set of keys, or None if the keys were not found in the dictionary.
-    """
-    current = nested_dict
-    for key in keys:
-        if isinstance(current, list):
-            # If the current value is a list, create a new list containing the values for the given key from each item in the list
-            current = [item.get(key, {}) for item in current]
-        else:
-            # If the current value is a dictionary, get the value associated with the given key
-            current = current.get(key, {})
-        # If the current value is a list with only one element, return that element instead of the whole list
-        if isinstance(current, list) and len(current) == 1:
-            current = current[0]
-    return current if current != {} else None
-'''
-
-#2nd suggested function to be able to concatenate a list if more than one element present, will use this one 
-# just in case there are any as it seems to work but I have not found a data example to verify it yet but it returns 
-# the same as the first suggested function.
+#chatGPT 2nd suggested function to be able to concatenate a list if more than one element present, this allows us to be able to retrieve data
+#even when in a 3rd nested layer.
 def get_value_by_nested_key(nested_dict, keys):
     current = nested_dict
     for key in keys:
@@ -87,12 +58,12 @@ for offset in range(0, 500, 100):
               keys = field.split(".")
               value = get_value_by_nested_key(job, keys)
               extracted_fields[field] = value
+          # The below needs to be commented out if the below missing fields secion is commented back in or there will be duplicate appending.    
           job_listings_extracted.append(extracted_fields)
 
           # The below should be checking for joblisting with missing fields  (in case there are any, for trouble shooting purposes). If none missing,
-          # then it just appends the info to the job_listings_extracted. It will not gather correctly without this piece however since
-          # I do not remember how I have tied them together and now I cannot untangle them.
-          
+          # then it just appends the info to the job_listings_extracted.
+          '''
           missing_fields_found = False
           for field in desired_fields:
             if field not in extracted_fields:
@@ -101,8 +72,10 @@ for offset in range(0, 500, 100):
                 missing_fields[field] = []
               missing_fields[field].append(job_id)
               missing_fields_found = True
+           
           if not missing_fields_found:
-            pass
+            job_listings_extracted.append(extracted_fields)
+          '''
     else:
     # The request was unsuccessful
       print("Error: Status code", response.status_code)
@@ -118,8 +91,9 @@ print("Total job listings from url:", total)
 # print of number of retrieved job postings with desired fields, to compare with total above
 num_jobs_extract = len(job_listings_extracted)
 print(f"{num_jobs_extract} jobs found in extracted_fields")
+
 # print out the IDs of the job listings missing each desired field (if missing_fields is empty it will only print an empty dictionary)
-# only for troubleshooting purposes if there are discrepancies between total and extracted. 
+# only for troubleshooting purposes if there are less extracted fields than total.
 '''
 print(missing_fields)
 for field in missing_fields:

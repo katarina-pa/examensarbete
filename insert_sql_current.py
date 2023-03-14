@@ -1,20 +1,17 @@
-# OBS! Important to have run the customize_from_list_3rd_historical.py AND change JSON file read so that the right job_listings_desired.json file is used.
-# Must also change jtxt file and table name according to which historical table is being inserted into.
+# OBS! Important to have run the customize_from_list_3rd_current.py AND change JSON file read so that the right job_listings_desired.json file is used.
+# Must also change jtxt file and table name according to which table is being inserted into.
 import sqlite3
 import json
 
 # read in the list of desired fields from a file and clean up one line space and ordered columns
 with open("desired_fields.txt", "r", encoding="utf-8") as f:
-  desired_fields = [line.strip() for line in f]
-
+  #desired_fields = [line.strip() for line in f]
+  #correct the non-SQLite compatible naming convention with a _ instead of .
+  desired_fields = [line.strip().replace(".", "_") for line in f]
 # read in the extracted job listings from a JSON file
 # OBS! Must change the years in json file so that it reads the correct data pull
 with open("job_listings_desired.json", "r", encoding="utf-8") as f:
   job_listings_extracted = json.load(f)
-
-# don't believe I need the below for insertion only so commented out
-# get the data types of the fields from the extracted job listing in json file to format db columns later
-#field_data_types = {field: type(job.get(field)) for job in job_listings_extracted for field in job if field in desired_fields}
 
 # connect to the database
 conn = sqlite3.connect('job_listings.db')
@@ -22,7 +19,8 @@ c = conn.cursor()
 
 # looping through the data in the json file
 for job in job_listings_extracted:
-    # added f"`{field}`" for field in desired_fields]
+    # Replace "." with "_" in field names to match updated db table names
+    job = {key.replace(".", "_"): value for key, value in job.items()}
     #chat GPT suggested the below to extract only the values from the listing and to convert any datatypes that are not str, bool, or int.
     values = [str(job.get(field, "")) if isinstance(job.get(field, ""), (str, bool)) else int(job.get(field)) if isinstance(job.get(field), int) else "" for field in job.keys() if field in desired_fields]
     # added the `` for field due to dot character in the field names in json data

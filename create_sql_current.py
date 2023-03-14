@@ -1,4 +1,4 @@
-# OBS! Important to have run the customize_from_list.py so that the right job_listings_desired.json file is used.
+# OBS! Important to have run the customize_from_list_3rd_current.py so that the right job_listings_desired.json file is used.
 import sqlite3
 import json
 
@@ -6,7 +6,9 @@ table_name = "current_job_listings"
 
 # read in the list of desired fields from a file and clean up one line space and ordered columns
 with open("desired_fields.txt", "r", encoding="utf-8") as f:
-  desired_fields = [line.strip() for line in f]
+  #desired_fields = [line.strip() for line in f]
+  #correct the non-SQLite compatible naming convention with a _ instead of .
+  desired_fields = [line.strip().replace(".", "_") for line in f]
 
 # read in the extracted job listings from a JSON file
 with open("job_listings_desired.json", "r", encoding="utf-8") as f:
@@ -52,9 +54,10 @@ else:
   # actual execution of the SQL query to create a table
   c.execute(create_table_query)
 
-# looping through the data in the json file
+# looping through the data in the json file and inserting into SQLite table
 for job in job_listings_extracted:
-    # added f"`{field}`" for field in desired_fields]
+    # Replace "." with "_" in field names to match updated db table names
+    job = {key.replace(".", "_"): value for key, value in job.items()}
     #chat GPT suggested the below to extract only the values from the listing and to convert any datatypes that are not str, bool, or int.
     values = [str(job.get(field, "")) if isinstance(job.get(field, ""), (str, bool)) else int(job.get(field)) if isinstance(job.get(field), int) else "" for field in job.keys() if field in desired_fields]
     # added the `` for field due to dot character in the field names in json data

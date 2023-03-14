@@ -11,42 +11,14 @@ headers = {"Accept": "application/json", "User-Agent": "Mozilla/5.0"}
 # had to create historical list since headers were different from current. Had to create a 3rd one ending _2019-2020 for 
 # that time period since it was missing even more.
 # OBS! Make sure correct txt file is referenced!
-with open("desired_fields_historical_2019-2020.txt", "r") as f:
+with open("desired_fields_historical_2016-2020.txt", "r") as f:
   desired_fields = [line.strip() for line in f]
 
 # empty dictionaries and list for later usage in the loop
 job_listings_extracted = []
 missing_fields = {}
 
-'''
-# suggested function by chatGPT to reiterate and be able to go to 3rd nesting level to retrieve value-- this one works as is
-def get_value_by_nested_key(nested_dict, keys):
-    """
-    Traverses a nested dictionary and returns the value for a given set of keys.
-
-    Parameters:
-    - nested_dict (dict): The nested dictionary to traverse.
-    - keys (list): The keys to look up in the dictionary. Each key represents a level of nesting.
-
-    Returns:
-    - The value associated with the given set of keys, or None if the keys were not found in the dictionary.
-    """
-    historical = nested_dict
-    for key in keys:
-        if isinstance(historical, list):
-            # If the historical value is a list, create a new list containing the values for the given key from each item in the list
-            historical = [item.get(key, {}) for item in historical]
-        else:
-            # If the historical value is a dictionary, get the value associated with the given key
-            historical = historical.get(key, {})
-        # If the historical value is a list with only one element, return that element instead of the whole list
-        if isinstance(historical, list) and len(historical) == 1:
-            historical = historical[0]
-    return historical if historical != {} else None
-'''
-
-
-#2nd suggested function to be able to concatenate a list if more than one element present, will use this one 
+#2nd suggested function by chatGPT to be able to concatenate a list if more than one element present, will use this one 
 # just in case there are any as it seems to work but I have not found a data example to verify it yet but it returns 
 # the same as the first suggested function.
 def get_value_by_nested_key(nested_dict, keys):
@@ -102,13 +74,13 @@ for offset in range(0, 1000, 100):
                 historical = [item.get(key, {}) for item in historical]
               else:
                 historical = historical.get(key, {})
-              extracted_fields[field] = historical '''
+              extracted_fields[field] = historical 
+              '''
           job_listings_extracted.append(extracted_fields)
 
           # The below should be checking for joblisting with missing fields  (in case there are any, for trouble shooting purposes). If none missing,
-          # then it just appends the info to the job_listings_extracted. It will not gather correctly without this piece however since
-          # I do not remember how I have tied them together and now I cannot untangle them.
-          
+          # then it just appends the info to the job_listings_extracted.
+          '''
           missing_fields_found = False
           for field in desired_fields:
             if field not in extracted_fields:
@@ -118,7 +90,8 @@ for offset in range(0, 1000, 100):
               missing_fields[field].append(job_id)
               missing_fields_found = True
           if not missing_fields_found:
-            pass
+            job_listings_extracted.append(extracted_fields)
+          '''  
     else:
     # The request was unsuccessful
       print("Error: Status code", response.status_code)
